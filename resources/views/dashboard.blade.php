@@ -20,13 +20,13 @@
         // Kartu statistik per role (variabel sama seperti sebelumnya)
         if ($user->isAdmin()) {
             $cards = [
-                ['Total Slot', $totalSlot, 'slot'],
+                ['Slot Tersedia', $slotTersedia . ' / ' . $totalSlot, 'slot'],
                 ['Booking Aktif', $bookingAktif, 'booking'],
                 ['Total Pendapatan', 'Rp' . number_format($totalPendapatan, 0, ',', '.'), 'money'],
             ];
         } elseif ($user->isPetugas()) {
             $cards = [
-                ['Slot Tersedia', $totalSlot, 'slot'],
+                ['Slot Tersedia', $slotTersedia . ' / ' . $totalSlot, 'slot'],
                 ['Booking Aktif', $bookingAktif, 'booking'],
                 ['Transaksi Hari Ini', $transaksiHariIni, 'today'],
             ];
@@ -34,7 +34,7 @@
             $cards = [
                 ['Total Pendapatan', 'Rp' . number_format($totalPendapatan, 0, ',', '.'), 'money'],
                 ['Booking Selesai', $bookingSelesai, 'done'],
-                ['Total Slot', $totalSlot, 'slot'],
+                ['Slot Tersedia', $slotTersedia . ' / ' . $totalSlot, 'slot'],
             ];
         } else {
             $cards = [];

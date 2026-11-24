@@ -120,12 +120,12 @@
                             Masuk
                         </button>
 
-                        @if (Route::has('register'))
+                       @if (Route::has('register'))
                             <p class="text-center text-sm text-slate-400 pt-2">
                                 Belum punya akun?
-                                <a href="{{ route('register') }}" class="font-semibold text-sky-400 hover:text-sky-300 transition">Daftar sekarang</a>
+                                <a href="{{ route('register') }}" ...>Daftar</a>
                             </p>
-                        @endif
+                    @endif
                     </form>
                 </div>
 

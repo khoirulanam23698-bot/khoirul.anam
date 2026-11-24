@@ -17,23 +17,29 @@ Route::get('/dashboard', function () {
     $user = auth()->user();
     $data = [];
 
+    $totalSlot   = \App\Models\ParkingSlot::count();
+    $bookingAktif = \App\Models\Booking::where('status', 'aktif')->count();
+    $slotTersedia = max(0, $totalSlot - $bookingAktif);
+
     if ($user->isAdmin()) {
-        $data['totalSlot'] = \App\Models\ParkingSlot::count();
-        $data['bookingAktif'] = \App\Models\Booking::where('status', 'aktif')->count();
+        $data['totalSlot'] = $totalSlot;
+        $data['slotTersedia'] = $slotTersedia;
+        $data['bookingAktif'] = $bookingAktif;
         $data['totalPendapatan'] = \App\Models\Payment::where('status', 'lunas')->sum('jumlah');
     } elseif ($user->isPetugas()) {
-        $data['totalSlot'] = \App\Models\ParkingSlot::where('status', 'tersedia')->count();
-        $data['bookingAktif'] = \App\Models\Booking::where('status', 'aktif')->count();
+        $data['totalSlot'] = $totalSlot;
+        $data['slotTersedia'] = $slotTersedia;
+        $data['bookingAktif'] = $bookingAktif;
         $data['transaksiHariIni'] = \App\Models\Booking::whereDate('waktu_masuk', today())->count();
     } elseif ($user->isOwner()) {
         $data['totalPendapatan'] = \App\Models\Payment::where('status', 'lunas')->sum('jumlah');
         $data['bookingSelesai'] = \App\Models\Booking::where('status', 'selesai')->count();
-        $data['totalSlot'] = \App\Models\ParkingSlot::count();
+        $data['totalSlot'] = $totalSlot;
+        $data['slotTersedia'] = $slotTersedia;
     }
 
     return view('dashboard', $data);
 })->middleware(['auth', 'verified'])->name('dashboard');
-
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -42,11 +48,6 @@ Route::middleware('auth')->group(function () {
 
 require __DIR__.'/auth.php';
 Route::middleware('auth')->group(function () {
-    Route::get('/booking', [BookingController::class, 'index'])->name('booking.index');
-    Route::post('/booking', [BookingController::class, 'store'])->name('booking.store');
-    Route::post('/booking/{booking}/bayar', [BookingController::class, 'pay'])->name('booking.pay');
-    Route::post('/booking/{booking}/checkout', [BookingController::class, 'checkout'])->name('booking.checkout');
-
      Route::resource('vehicles', VehicleController::class)->except(['show']);
 });
 
@@ -70,16 +71,17 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
 });
 
 Route::middleware(['auth', 'petugas'])->prefix('petugas')->group(function () {
-    // Route yang sudah ada
-    Route::get('/transaksi', [AdminBookingController::class, 'index'])->name('petugas.transaksi.index');
-    Route::get('/booking/{booking}/struk', [BookingController::class, 'cetakStruk'])->name('petugas.struk.cetak');
+    // Halaman utama transaksi (Form + Tabel)
+    Route::get('/transaksi', [PetugasController::class, 'index'])->name('petugas.transaksi.index');
     
-    // TAMBAHAN ROUTE UNTUK INPUT KENDARAAN MASUK
-    Route::get('/transaksi/create', [PetugasController::class, 'create'])->name('petugas.transaksi.create');
+    // Proses simpan kendaraan masuk
     Route::post('/transaksi', [PetugasController::class, 'store'])->name('petugas.transaksi.store');
-
-    // TAMBAHAN ROUTE UNTUK PROSES KELUAR (CHECKOUT)
+    
+    // Proses kendaraan keluar (checkout)
     Route::post('/transaksi/{booking}/checkout', [PetugasController::class, 'checkout'])->name('petugas.transaksi.checkout');
+    
+    // Cetak struk
+    Route::get('/booking/{booking}/struk', [BookingController::class, 'cetakStruk'])->name('petugas.struk.cetak');
 });
 
 Route::middleware(['auth', 'owner'])->prefix('owner')->group(function () {

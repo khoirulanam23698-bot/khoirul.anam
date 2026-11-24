@@ -70,16 +70,6 @@
             </a>
         @endif
 
-        @if(!Auth::user()->isAdmin() && !Auth::user()->isPetugas() && !Auth::user()->isOwner())
-            <p class="px-3 pt-4 pb-1 text-xs font-bold text-slate-400 uppercase tracking-wide">Layanan</p>
-            <a href="{{ Route::has('booking.index') ? route('booking.index') : '#' }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition
-                    {{ request()->routeIs('booking.*')
-            ? 'bg-gradient-to-r from-violet-600 to-blue-500 text-white shadow-md'
-            : 'text-slate-600 hover:bg-violet-50 hover:text-violet-600' }}">
-                <span>🚗</span> Booking
-            </a>
-        @endif
-
         @if(Auth::user()->isPetugas())
             <p class="px-3 pt-4 pb-1 text-xs font-bold text-slate-400 uppercase tracking-wide">Operasional</p>
             <a href="{{ Route::has('petugas.transaksi.index') ? route('petugas.transaksi.index') : '#' }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition
